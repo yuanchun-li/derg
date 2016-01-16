@@ -36,7 +36,8 @@ public class SootBuilder extends DERGFrontend {
     // Libraries' directory, to be added to soot classpath
     private String librariesDir = "";
 
-    private boolean enableConstant = true;
+    private boolean enableConstant = false;
+    private boolean enableModifier = false;
 
     public SootBuilder() {}
 
@@ -48,10 +49,14 @@ public class SootBuilder extends DERGFrontend {
                 .longOpt("android-sdk").hasArg().desc("path to android.jar").build();
         Option enable_constant = Option.builder("const").argName("true/false")
                 .longOpt("enable-constant").hasArg().desc("enable constant nodes in DERG, default is false").build();
+        Option enable_modifier = Option.builder("modifier").argName("true/false")
+                .longOpt("enable-modifier").hasArg().desc("enable modifier nodes in DERG, default is false").build();
+
 
         options.addOption(library);
         options.addOption(sdk);
         options.addOption(enable_constant);
+        options.addOption(enable_modifier);
 
         CommandLineParser parser = new IgnoreUnknownTokenParser();
 
@@ -75,15 +80,27 @@ public class SootBuilder extends DERGFrontend {
                 }
             }
             if (cmd.hasOption("const")) {
-                String const_enable = cmd.getOptionValue("const").toLowerCase();
-                if ("true".equals(const_enable)) {
+                String enable_const_opt = cmd.getOptionValue("const").toLowerCase();
+                if ("true".equals(enable_const_opt)) {
                     this.enableConstant = true;
                 }
-                else if ("false".equals(const_enable)) {
+                else if ("false".equals(enable_const_opt)) {
                     this.enableConstant = false;
                 }
                 else {
-                    throw new ParseException("const option should be true or false, given: " + const_enable);
+                    throw new ParseException("const option should be true or false, given: " + enable_const_opt);
+                }
+            }
+            if (cmd.hasOption("modifier")) {
+                String enable_modifier_opt = cmd.getOptionValue("modifier");
+                if ("true".equals(enable_modifier_opt)) {
+                    this.enableModifier = true;
+                }
+                else if ("false".equals(enable_modifier_opt)) {
+                    this.enableModifier = false;
+                }
+                else {
+                    throw new ParseException("modifier option should be true or false, given: " + enable_modifier_opt);
                 }
             }
         } catch (ParseException e) {
@@ -247,6 +264,7 @@ public class SootBuilder extends DERGFrontend {
     }
 
     public void addModifierRelations(Graph g, Node v, int modifiers) {
+        if (!enableModifier) return;
         for (ModifierNode modifierNode : ModifierNode.parseModifierNodes(modifiers)) {
             Node v_modifier = g.getNodeOrCreate(modifierNode, modifierNode.name, Node.TYPE_MODIFIER);
             g.createEdge(v, v_modifier, Edge.TYPE_MODIFIER);
@@ -272,7 +290,7 @@ public class SootBuilder extends DERGFrontend {
                     }
                 }
             }
-        } else {
+        } else if (enableModifier) {
             Node v_constructor_modifier = g.getNodeOrCreate(ModifierNode.constructorModifier,
                     ModifierNode.constructorModifier.name, Node.TYPE_MODIFIER);
             g.createEdge(v_method, v_constructor_modifier, Edge.TYPE_MODIFIER);
