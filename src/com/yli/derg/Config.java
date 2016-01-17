@@ -47,6 +47,8 @@ public class Config {
                 .desc(String.format("DERG frontend: %s", DERGFrontend.getAvailableFrontends())).build();
         Option backend = Option.builder("b").argName("backend").longOpt("backend").hasArg()
                 .desc(String.format("DERG backend: %s", DERGBackend.getAvailableBackends())).build();
+        Option help_opt = Option.builder("h").desc("print this help message")
+                .longOpt("help").build();
 
         options.addOption(quiet);
         options.addOption(debug);
@@ -54,6 +56,7 @@ public class Config {
         options.addOption(input);
         options.addOption(frontend);
         options.addOption(backend);
+        options.addOption(help_opt);
 
         CommandLineParser parser = new IgnoreUnknownTokenParser();
 
@@ -93,6 +96,9 @@ public class Config {
                 throw new ParseException("unknown backend type: " + Config.backendType);
             }
             Config.dergBackend.parseArgs(args);
+            if (cmd.hasOption("h")) {
+                throw new ParseException("print help message.");
+            }
         } catch (ParseException e) {
             System.out.println(e.getMessage());
             HelpFormatter formatter = new HelpFormatter();

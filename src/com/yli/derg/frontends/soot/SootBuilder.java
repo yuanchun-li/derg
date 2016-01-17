@@ -36,8 +36,8 @@ public class SootBuilder extends DERGFrontend {
     // Libraries' directory, to be added to soot classpath
     private String librariesDir = "";
 
-    private boolean enableConstant = false;
-    private boolean enableModifier = false;
+    private boolean enableConstant = true;
+    private boolean enableModifier = true;
 
     public SootBuilder() {}
 
@@ -48,15 +48,17 @@ public class SootBuilder extends DERGFrontend {
         Option sdk = Option.builder("sdk").argName("android.jar")
                 .longOpt("android-sdk").hasArg().desc("path to android.jar").build();
         Option enable_constant = Option.builder("const").argName("true/false")
-                .longOpt("enable-constant").hasArg().desc("enable constant nodes in DERG, default is false").build();
+                .longOpt("enable-constant").hasArg().desc("enable constant nodes in DERG, default is true").build();
         Option enable_modifier = Option.builder("modifier").argName("true/false")
-                .longOpt("enable-modifier").hasArg().desc("enable modifier nodes in DERG, default is false").build();
-
+                .longOpt("enable-modifier").hasArg().desc("enable modifier nodes in DERG, default is true").build();
+        Option help_opt = Option.builder("h").desc("print this help message")
+                .longOpt("help").build();
 
         options.addOption(library);
         options.addOption(sdk);
         options.addOption(enable_constant);
         options.addOption(enable_modifier);
+        options.addOption(help_opt);
 
         CommandLineParser parser = new IgnoreUnknownTokenParser();
 
@@ -102,6 +104,9 @@ public class SootBuilder extends DERGFrontend {
                 else {
                     throw new ParseException("modifier option should be true or false, given: " + enable_modifier_opt);
                 }
+            }
+            if (cmd.hasOption("h")) {
+                throw new ParseException("print help message.");
             }
         } catch (ParseException e) {
             System.out.println(e.getMessage());
@@ -184,15 +189,21 @@ public class SootBuilder extends DERGFrontend {
     }
 
     public static Node getClassNode(Graph g, SootClass cls) {
-        return g.getNodeOrCreate(cls, cls.getShortName(), Node.TYPE_CLASS);
+        Node result = g.getNodeOrCreate(cls, cls.getShortName(), Node.TYPE_CLASS);
+        result.sig = cls.getName();
+        return result;
     }
 
     public static Node getMethodNode(Graph g, SootMethod method) {
-        return g.getNodeOrCreate(method, method.getName(), Node.TYPE_METHOD);
+        Node result = g.getNodeOrCreate(method, method.getName(), Node.TYPE_METHOD);
+        result.sig = method.getSignature();
+        return result;
     }
 
     public static Node getFieldNode(Graph g, SootField field) {
-        return g.getNodeOrCreate(field, field.getName(), Node.TYPE_FIELD);
+        Node result = g.getNodeOrCreate(field, field.getName(), Node.TYPE_FIELD);
+        result.sig = field.getSignature();
+        return result;
     }
 
     public static Node getTypeNode(Graph g, Type type) {

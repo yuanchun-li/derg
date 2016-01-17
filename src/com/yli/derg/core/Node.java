@@ -14,6 +14,7 @@ public class Node {
     public int id;
     public String name;
     public String type;
+    public String sig;
 
     public static final String TYPE_PACKAGE = "package";
     public static final String TYPE_CLASS = "class";
@@ -28,17 +29,18 @@ public class Node {
     public static final String TYPE_LIB = "_LIB";
 
 
-    private Node(Object content, String name, String type, int id) {
+    private Node(Object content, String name, String type, String sig, int id) {
         this.content = content;
         this.name = name;
         this.type = type;
+        this.sig = sig;
         this.id = id;
     }
 
     private static int count = 0;
     public static Node make(Object obj, String name, String type) {
         if (obj == null) return null;
-        return new Node(obj, name, type, count++);
+        return new Node(obj, name, type, "", count++);
     }
 
     public static Node make(JSONObject jsonObject) {
@@ -46,6 +48,7 @@ public class Node {
             return new Node(jsonObject,
                     jsonObject.getString("name"),
                     jsonObject.getString("type"),
+                    jsonObject.getString("sig"),
                     jsonObject.getInt("id"));
         }
         return null;
@@ -69,11 +72,16 @@ public class Node {
         vertexMap.put("id", id);
         vertexMap.put("name", name);
         vertexMap.put("type", type);
+        vertexMap.put("sig", sig);
         return vertexMap;
+    }
+
+    public void setSig(String sig) {
+        this.sig = sig;
     }
 
     public void setAsLib() {
         this.type += TYPE_LIB;
     }
-    public boolean isLib() { return this.type.endsWith(TYPE_LIB); };
+    public boolean isLib() { return this.type.endsWith(TYPE_LIB); }
 }

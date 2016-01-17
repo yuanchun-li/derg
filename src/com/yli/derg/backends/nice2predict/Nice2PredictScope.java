@@ -33,6 +33,7 @@ public class Nice2PredictScope {
                     n.type.equals(Node.TYPE_FIELD) ||
                     n.type.equals(Node.TYPE_METHOD))) {
                 Nice2PredictScope scope = new Nice2PredictScope();
+                scope.nodeIds.add(n.id);
                 nodeId2Scope.put(n.id, scope);
             }
         }

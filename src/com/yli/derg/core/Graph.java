@@ -106,4 +106,32 @@ public class Graph {
         }
         return edge;
     }
+
+    public Graph removeNodesOfType(String nodeType) {
+        Graph g_new = new Graph();
+        for (Node node : this.nodes) {
+            if (node.type.equals(nodeType))
+                continue;
+            g_new.nodes.add(node);
+        }
+        for (Edge edge : this.edges) {
+            if (edge.source.type.equals(nodeType) || edge.target.type.equals(nodeType))
+                continue;
+            g_new.edges.add(edge);
+        }
+        return g_new;
+    }
+
+    public Graph removeEdgesOfType(String edgeType) {
+        Graph g_new = new Graph();
+        for (Node node : this.nodes) {
+            g_new.nodes.add(node);
+        }
+        for (Edge edge : this.edges) {
+            if (edge.type.equals(edgeType))
+                continue;
+            g_new.edges.add(edge);
+        }
+        return g_new;
+    }
 }
