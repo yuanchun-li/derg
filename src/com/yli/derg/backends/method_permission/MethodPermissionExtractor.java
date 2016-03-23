@@ -33,8 +33,8 @@ public class MethodPermissionExtractor extends DERGBackend {
 
     public void parseArgs(String[] args) throws ParseException {
         org.apache.commons.cli.Options options = new org.apache.commons.cli.Options();
-        Option mappingOpt = Option.builder("mapping").argName("mapping.csv")
-                .longOpt("permission_mapping").hasArg().desc("A file containing the mapping from API to permissions, in PScout format.").build();
+        Option mappingOpt = Option.builder("mapping").argName("mapping.json")
+                .longOpt("permission_mapping").hasArg().desc("A file containing the mapping from API to permissions.").build();
 
         options.addOption(mappingOpt);
 
@@ -93,7 +93,7 @@ public class MethodPermissionExtractor extends DERGBackend {
         Util.LOGGER.info("finish extracting method permissions");
     }
 
-    // TODO load PScout mapping.csv file, and complete the API2Permissions mapping
+    // load mapping file, and complete the API2Permissions mapping
     // Note that the method signatures in PScout is different from DERG
     // e.g. In PScout mapping file, a method:
     //         com/android/server/LocationManagerService,getProviders,(Landroid/location/Criteria;Z)Ljava/util/List;
@@ -102,7 +102,17 @@ public class MethodPermissionExtractor extends DERGBackend {
     private void loadMappingFile() {
         API2Permissions = new HashMap<>();
         try {
-            List<String> lines = FileUtils.readLines(mappingFile);
+            String json_f = FileUtils.readFileToString(mappingFile);
+            JSONObject json_obj = new JSONObject(json_f);
+            for (Object API : json_obj.keySet()) {
+                String APIstr = (String) API;
+                Set<String> permissions = new HashSet<>();
+                JSONArray permissionArray = json_obj.getJSONArray(APIstr);
+                for (int i = 0; i < permissionArray.length(); i++) {
+                    permissions.add(permissionArray.getString(i));
+                }
+                API2Permissions.put(APIstr, permissions);
+            }
             // code here
         } catch (IOException e) {
             Util.LOGGER.warning("exception during loading mapping file.");
@@ -116,7 +126,7 @@ public class MethodPermissionExtractor extends DERGBackend {
         if (referMap.containsKey(methodNode)) {
             HashSet<Node> referNodes = referMap.get(methodNode);
             for (Node referNode : referNodes) {
-                if (referNode.isLib()) {
+                if (referNode.isMethod() && referNode.isLib()) {
                     Set<String> permissionsOfAPI = getPermissionsOfAPI(referNode.sig);
                     permissions.addAll(permissionsOfAPI);
 

@@ -84,4 +84,5 @@ public class Node {
         this.type += TYPE_LIB;
     }
     public boolean isLib() { return this.type.endsWith(TYPE_LIB); }
+    public boolean isMethod() { return this.type.startsWith(TYPE_METHOD); }
 }

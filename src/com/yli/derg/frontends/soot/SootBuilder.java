@@ -422,7 +422,7 @@ public class SootBuilder extends DERGFrontend {
         for (Node n: g.nodes) {
             SootClass cls = getNodeClass(n);
             if (cls == null || cls.isApplicationClass()) continue;
-            n.type += "_lib";
+            n.setAsLib();
             if (n.content instanceof SootClass) {
                 n.name = ((SootClass) n.content).getName();
             }
