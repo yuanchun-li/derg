@@ -27,7 +27,12 @@ public class MethodPermissionExtractor extends DERGBackend {
     public static final String NAME = "method_permission";
     public static final String DESCRIPTION = "extract each method's required Android permissions";
 
+    // key: method, value: methods which the key method refers to
     private HashMap<Node, HashSet<Node>> referMap;
+
+    // key: method, value: methods who overrides the key method
+    private HashMap<Node, HashSet<Node>> overrideMap;
+
     private HashMap<String, Set<String>> API2Permissions;
     private File mappingFile;
 
@@ -81,10 +86,21 @@ public class MethodPermissionExtractor extends DERGBackend {
             }
         }
 
+        overrideMap = new HashMap<>();
+
+        for (Edge e : g.edges) {
+            if (Edge.TYPE_OVERRIDE.equals(e.type)) {
+                if (!overrideMap.containsKey(e.target))
+                    overrideMap.put(e.target, new HashSet<Node>());
+                overrideMap.get(e.target).add(e.source);
+            }
+        }
+
         Map<String, Set<String>> method2Permissions = new HashMap<>();
         for (Node node : g.nodes) {
             if (Node.TYPE_METHOD.equals(node.type)) {
-                Set<String> permissions = getPermissionsOfMethod(node);
+                Set<String> APIs = getAllAPIsOfMethod(node, new HashSet<Node>());
+                Set<String> permissions = getPermissionsOfAPIs(APIs);
                 method2Permissions.put(node.sig, permissions);
             }
         }
@@ -120,27 +136,62 @@ public class MethodPermissionExtractor extends DERGBackend {
         }
     }
 
-    private Set<String> getPermissionsOfMethod(Node methodNode) {
-        Set<String> permissions = new HashSet<>();
+    private Set<String> getDirectAPIsOfMethod(Node methodNode) {
+        Set<String> APIs = new HashSet<>();
 
         if (referMap.containsKey(methodNode)) {
             HashSet<Node> referNodes = referMap.get(methodNode);
             for (Node referNode : referNodes) {
                 if (referNode.isMethod() && referNode.isLib()) {
-                    Set<String> permissionsOfAPI = getPermissionsOfAPI(referNode.sig);
-                    permissions.addAll(permissionsOfAPI);
+                    APIs.add(referNode.sig);
 
                 }
             }
         }
 
-        return permissions;
+        return APIs;
+    }
+
+    private Set<String> getAllAPIsOfMethod(Node methodNode, HashSet<Node> reachedNodes) {
+        Set<String> APIs = new HashSet<>();
+        reachedNodes.add(methodNode);
+
+        if (referMap.containsKey(methodNode)) {
+            HashSet<Node> referNodes = referMap.get(methodNode);
+            referNodes.removeAll(reachedNodes);
+            for (Node referNode : referNodes) {
+                APIs.addAll(getAllAPIsOfMethod(referNode, reachedNodes));
+            }
+        }
+
+        if (overrideMap.containsKey(methodNode)) {
+            HashSet<Node> overrideNodes = overrideMap.get(methodNode);
+            overrideNodes.removeAll(reachedNodes);
+            for (Node overrideNode : overrideNodes) {
+                APIs.addAll(getAllAPIsOfMethod(overrideNode, reachedNodes));
+            }
+        }
+
+        if (methodNode.isMethod() && methodNode.isLib()) {
+            APIs.add(methodNode.sig);
+        }
+
+        return APIs;
     }
 
     private Set<String> getPermissionsOfAPI(String API) {
         Set<String> permissions = new HashSet<>();
         if (API2Permissions.containsKey(API)) permissions = API2Permissions.get(API);
 
+        return permissions;
+    }
+
+
+    private Set<String> getPermissionsOfAPIs(Set<String> APIs) {
+        Set<String> permissions = new HashSet<>();
+        for (String API : APIs) {
+            permissions.addAll(getPermissionsOfAPI(API));
+        }
         return permissions;
     }
 
