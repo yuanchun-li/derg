@@ -70,7 +70,8 @@ public class MethodProfileBuilder extends DERGBackend {
                 String id = this.getMethodIdentifier(node);
                 String signature = this.getMethodSignature(node);
                 String sigHash = DigestUtils.sha256Hex(signature);
-                MethodProfile profile = new MethodProfile(id, sigHash);
+                String relation = this.getMethodRelations(node);
+                MethodProfile profile = new MethodProfile(id, sigHash, node.id, relation);
                 profiles.add(profile.toMap());
             }
         }
@@ -126,10 +127,37 @@ public class MethodProfileBuilder extends DERGBackend {
         return StringUtils.join(segs, '\n');
     }
 
+    private String getMethodRelations(Node methodNode) {
+        ArrayList<String> segs = new ArrayList<>();
+
+        if (paraMap.containsKey(methodNode)) {
+            HashSet<Node> paraNodes = paraMap.get(methodNode);
+            for (Node paraNode : paraNodes) {
+                segs.add(String.format("para:%s", paraNode.name));
+            }
+        }
+
+        if (retMap.containsKey(methodNode)) {
+            Node retNode = retMap.get(methodNode);
+            segs.add(String.format("ret:%s", retNode.name));
+        }
+
+        if (referMap.containsKey(methodNode)) {
+            HashSet<Node> referNodes = referMap.get(methodNode);
+            for (Node referNode : referNodes) {
+                segs.add(String.format("refer:%s", referNode.name));
+            }
+        }
+
+        Collections.sort(segs);
+        return StringUtils.join(segs, '\n');
+    }
+
     private void dumpProfiles(ArrayList<Map> profiles) {
         String export_file_name = String.format("%s/method_profile.json", Config.outputDir);
         File export_file = new File(export_file_name);
         try {
+//            FileUtils.forceDelete(export_file);
             FileUtils.writeStringToFile(export_file, new JSONArray(profiles).toString(2), "UTF-8");
         } catch (IOException e) {
             e.printStackTrace();

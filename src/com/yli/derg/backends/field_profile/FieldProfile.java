@@ -1,4 +1,4 @@
-package com.yli.derg.backends.method_profile;
+package com.yli.derg.backends.field_profile;
 
 import org.json.JSONObject;
 
@@ -7,15 +7,15 @@ import java.util.Map;
 
 /**
  * Created by liyc on 1/4/16.
- * method profile
+ * field profile
  */
-public class MethodProfile {
+public class FieldProfile {
     private String identifier;
     private String signature;
     private int DERG_id;
     private String relation;
 
-    public MethodProfile(String identifier, String signature, int DERG_id, String relation) {
+    public FieldProfile(String identifier, String signature, int DERG_id, String relation) {
         this.identifier = identifier;
         this.signature = signature;
         this.DERG_id = DERG_id;
