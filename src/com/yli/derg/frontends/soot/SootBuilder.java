@@ -185,7 +185,9 @@ public class SootBuilder extends DERGFrontend {
     }
 
     public static Node getPackageNode(Graph g, PackageNode pkgNode) {
-        return g.getNodeOrCreate(pkgNode, pkgNode.getSegName(), Node.TYPE_PACKAGE);
+        Node result = g.getNodeOrCreate(pkgNode, pkgNode.getSegName(), Node.TYPE_PACKAGE);
+        result.sig = pkgNode.getPackageName();
+        return result;
     }
 
     public static Node getClassNode(Graph g, SootClass cls) {

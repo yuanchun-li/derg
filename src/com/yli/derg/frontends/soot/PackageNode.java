@@ -36,6 +36,10 @@ public class PackageNode {
         return this.segName;
     }
 
+    public String getPackageName() {
+        return this.packageName;
+    }
+
     public int hashCode() {
         return packageName.hashCode();
     }

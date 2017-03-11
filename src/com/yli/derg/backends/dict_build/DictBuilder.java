@@ -9,10 +9,7 @@ import org.json.JSONArray;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by liyc on 1/5/16.
@@ -22,30 +19,39 @@ public class DictBuilder extends DERGBackend {
     public static final String NAME = "dict_build";
     public static final String DESCRIPTION = "build a dictionary of the element names";
 
-    private HashSet<NodeVocabulary> nodeVocabularies;
+    private List<NodeVocabulary> nodeVocabularies;
+    private List<String> wordList;
 
     @Override
     public void run(Graph g) {
-        nodeVocabularies = new HashSet<>();
+        nodeVocabularies = new ArrayList<>();
         for (Node node : g.nodes) {
             if (node.isLib()) continue;
             if (Node.TYPE_PACKAGE.equals(node.type) || Node.TYPE_CLASS.equals(node.type)
                     || Node.TYPE_METHOD.equals(node.type) || Node.TYPE_FIELD.equals(node.type))
                 nodeVocabularies.add(new NodeVocabulary(node));
         }
+        wordList = new ArrayList<>();
+        for (NodeVocabulary nodeVocabulary : nodeVocabularies) {
+            wordList.add(nodeVocabulary.toWordsString());
+        }
         this.exportDict();
     }
 
     private void exportDict() {
-        ArrayList<Map<String, Object>> dict = new ArrayList<>();
-        for (NodeVocabulary nodeVocabulary : nodeVocabularies) {
-            dict.add(nodeVocabulary.toMap());
-        }
-        JSONArray jsonDict = new JSONArray(dict);
-        String export_file_name = String.format("%s/dict.json", Config.outputDir);
-        File export_file = new File(export_file_name);
         try {
+            ArrayList<Map<String, Object>> dict = new ArrayList<>();
+            for (NodeVocabulary nodeVocabulary : nodeVocabularies) {
+                dict.add(nodeVocabulary.toMap());
+            }
+            JSONArray jsonDict = new JSONArray(dict);
+            String export_file_name = String.format("%s/dict.json", Config.outputDir);
+            File export_file = new File(export_file_name);
             FileUtils.writeStringToFile(export_file, jsonDict.toString(2), "UTF-8");
+
+            String plain_export_file_name = String.format("%s/dict_plain.txt", Config.outputDir);
+            File plain_export_file = new File(plain_export_file_name);
+            FileUtils.writeLines(plain_export_file, "UTF-8", wordList);
         } catch (IOException e) {
             e.printStackTrace();
         }

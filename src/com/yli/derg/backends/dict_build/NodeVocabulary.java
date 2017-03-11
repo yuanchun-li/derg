@@ -5,10 +5,7 @@ import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.json.JSONObject;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by liyc on 1/5/16.
@@ -17,9 +14,11 @@ import java.util.Map;
 public class NodeVocabulary {
     public String node_name;
     public String node_type;
-    public HashSet<String> words;
+    public int node_id;
+    public ArrayList<String> words;
 
     public NodeVocabulary(Node node) {
+        this.node_id = node.id;
         this.node_name = node.name;
         this.node_type = node.type;
 
@@ -47,13 +46,13 @@ public class NodeVocabulary {
                 && ((NodeVocabulary) o).node_type.equals(this.node_type);
     }
 
-    private HashSet<String> parseWords(String name) {
+    private ArrayList<String> parseWords(String name) {
         String[] segs = StringUtils.splitByCharacterTypeCamelCase(name);
 
-        HashSet<String> words = new HashSet<>();
-        words.add(name);
+        ArrayList<String> words = new ArrayList<>();
 
         for (String seg : segs) {
+            if (seg.length() == 1) continue;
             words.add(seg.trim().toLowerCase());
         }
 
@@ -62,6 +61,7 @@ public class NodeVocabulary {
 
     public Map<String, Object> toMap() {
         Map<String, Object> result = new HashMap<>();
+        result.put("id", this.node_id);
         result.put("name", this.node_name);
         result.put("type", this.node_type);
         result.put("words", this.words);
@@ -77,9 +77,15 @@ public class NodeVocabulary {
     }
 
     public static void main(String[] args) {
-        String name = "hello-world";
+        String name = "hello_world";
         String type = "package";
         NodeVocabulary nodeVocabulary = new NodeVocabulary(name, type);
         System.out.println(nodeVocabulary);
+    }
+
+    public String toWordsString() {
+//        return String.format("[%s:%d] %s", this.node_type, this.node_id,
+//                StringUtils.join(words, " "));
+        return StringUtils.join(words, " ");
     }
 }

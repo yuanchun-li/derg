@@ -1,6 +1,7 @@
 package com.yli.derg.backends;
 
 import com.yli.derg.backends.dict_build.DictBuilder;
+import com.yli.derg.backends.field_profile.FieldProfileBuilder;
 import com.yli.derg.backends.graph_export.GraphExporter;
 import com.yli.derg.backends.method_permission.MethodPermissionExtractor;
 import com.yli.derg.backends.method_profile.MethodProfileBuilder;
@@ -23,6 +24,7 @@ public abstract class DERGBackend {
         defaultBackend = GraphExporter.NAME;
         availableBackends.put(GraphExporter.NAME, new GraphExporter());
         availableBackends.put(MethodProfileBuilder.NAME, new MethodProfileBuilder());
+        availableBackends.put(FieldProfileBuilder.NAME, new FieldProfileBuilder());
         availableBackends.put(DictBuilder.NAME, new DictBuilder());
         availableBackends.put(Nice2Predict.NAME, new Nice2Predict());
         availableBackends.put(MethodPermissionExtractor.NAME, new MethodPermissionExtractor());
