@@ -1,6 +1,7 @@
 package com.yli.derg.frontends;
 
 import com.yli.derg.core.Graph;
+import com.yli.derg.frontends.soot.SimpleSootBuilder;
 import com.yli.derg.frontends.soot.SootBuilder;
 import com.yli.derg.frontends.json.JSONBuilder;
 import com.yli.derg.utils.Util;
@@ -19,6 +20,7 @@ public abstract class DERGFrontend {
     public static void registerFrontends() {
         defaultFrontend = SootBuilder.NAME;
         availableFrontends.put(SootBuilder.NAME, new SootBuilder());
+        availableFrontends.put(SimpleSootBuilder.NAME, new SimpleSootBuilder());
         availableFrontends.put(JSONBuilder.NAME, new JSONBuilder());
     }
     public static String getAvailableFrontends() {

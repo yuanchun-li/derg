@@ -28,6 +28,8 @@ public class Node {
 
     public static final String TYPE_LIB = "_LIB";
 
+    public static final String TYPE_API = "API";
+
 
     private Node(Object content, String name, String type, String sig, int id) {
         this.content = content;

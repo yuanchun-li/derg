@@ -11,27 +11,26 @@
 
     <repositories>
         <repository>
-            <id>ProjectRepo</id>
-            <name>ProjectRepo</name>
-            <url>file://${basedir}/lib</url>
-        </repository>
-        <repository>
             <id>central</id>
             <url>http://repo1.maven.org/maven2/</url>
+        </repository>
+        <repository>
+            <id>soot-snapshot</id>
+            <name>soot snapshots</name>
+            <url>http://soot-build.cs.uni-paderborn.de/nexus/repository/soot-snapshot/</url>
         </repository>
     </repositories>
 
     <dependencies>
         <dependency>
+            <groupId>ca.mcgill.sable</groupId>
+            <artifactId>soot</artifactId>
+            <version>3.0.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
             <groupId>org.json</groupId>
             <artifactId>json</artifactId>
             <version>20140107</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>soot</groupId>
-            <artifactId>soot-trunk</artifactId>
-            <version>1.0</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
