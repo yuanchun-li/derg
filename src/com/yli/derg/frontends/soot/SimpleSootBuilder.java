@@ -487,7 +487,12 @@ public class SimpleSootBuilder extends DERGFrontend {
 //            }
 
             // for each method
+            List<SootMethod> methods = new ArrayList<>();
             for (SootMethod method : cls.getMethods()) {
+                methods.add(method);
+            }
+
+            for (SootMethod method : methods) {
 //                addMethodRelations(g, method);
                 addAPICallRelations(g, method);
             }

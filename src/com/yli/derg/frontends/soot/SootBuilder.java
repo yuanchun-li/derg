@@ -456,14 +456,24 @@ public class SootBuilder extends DERGFrontend {
             addPackageRelations(g, cls);
             addClassRelations(g, cls);
 
+            List<SootField> fields = new ArrayList<>();
+            for (SootField field : cls.getFields()) {
+                fields.add(field);
+            }
+
             // Consider the scope inside the class
             // for each field
-            for (SootField field : cls.getFields()) {
+            for (SootField field : fields) {
                 addFieldRelations(g, field);
             }
 
-            // for each method
+            List<SootMethod> methods = new ArrayList<>();
             for (SootMethod method : cls.getMethods()) {
+                methods.add(method);
+            }
+
+            // for each method
+            for (SootMethod method : methods) {
                 addMethodRelations(g, method);
                 addDefineUseRelations(g, method);
             }
